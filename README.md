@@ -1,20 +1,53 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Vani TTS
 
-# Run and deploy your AI Studio app
+Vani TTS is a peaceful and spiritual text-to-speech application that transforms Kannada and Hindi text into high-quality audio using Gemini AI.
 
-This contains everything you need to run your app locally.
+## Features
 
-View your app in AI Studio: https://ai.studio/apps/6ce278ca-25c0-44bc-a8f9-e0faf8b8884b
+- **Multi-Language Support**: Seamlessly switch between Kannada and Hindi.
+- **Diverse Voice Characters**: Choose from 11 unique voice profiles (Male & Female) with different tonal qualities:
+  - **Kore** (Balanced & Wise)
+  - **Puck** (Cheerful & Bright)
+  - **Charon** (Deep & Resonant)
+  - **Fenrir** (Strong & Bold)
+  - **Zephyr** (Light & Ethereal)
+  - **Aoede** (Melodic & Soft)
+  - **Orpheus** (Classic & Poetic)
+  - **Leda** (Graceful & Calm)
+  - **Despina** (Mystical & Deep)
+  - **Achernar** (Radiant & Clear)
+  - **Sulafat** (Gentle & Warm)
+- **Speech Pace Control**: Adjust the generation speed from 0.5x to 2.0x to get the perfect delivery.
+- **Spiritual Aesthetic**: A clean, calming UI designed for a peaceful user experience.
+- **Direct Download**: Generated audio can be played back immediately or downloaded (via browser controls).
 
-## Run Locally
+## Tech Stack
 
-**Prerequisites:**  Node.js
+- **Frontend**: React, Vite, Tailwind CSS, Framer Motion, Lucide React.
+- **UI Components**: shadcn/ui.
+- **AI Engine**: Google Gemini AI (`gemini-2.5-flash-preview-tts`).
+- **Backend**: Express.js (serving the static application).
 
+## Getting Started
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+1. **Environment Variables**:
+   Ensure you have a `GEMINI_API_KEY` set in your environment.
+
+2. **Installation**:
+   ```bash
+   npm install
+   ```
+
+3. **Development**:
+   ```bash
+   npm run dev
+   ```
+
+4. **Build**:
+   ```bash
+   npm run build
+   ```
+
+## Design Philosophy
+
+Vani TTS is built with "Architectural Honesty" and "Mood First" principles. The typography (Inter and Serif pairings) and the spiritual color palette (Cream, Olive, Ink) are chosen to reinforce a sense of calm and divine resonance.
