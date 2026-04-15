@@ -45,13 +45,13 @@ export default function App() {
   };
 
   const titles = {
-    Kannada: "ಕನ್ನಡ ವಾಣಿ",
-    Hindi: "वाणी एआई"
+    Kannada: "Vani TTS",
+    Hindi: "Vani TTS"
   };
 
   const descriptions = {
-    Kannada: '"The voice of Kannada, echoing in peaceful resonance."',
-    Hindi: '"The essence of speech, captured in divine harmony."'
+    Kannada: '"Peaceful Kannada synthesis with divine resonance"',
+    Hindi: '"Harmonious Hindi synthesis with spiritual depth"'
   };
 
   return (
@@ -113,13 +113,13 @@ export default function App() {
               </div>
             </div>
             <CardDescription className="font-sans text-spiritual-ink/50">
-              {language === "Kannada" ? "Type or paste your text below." : "नीचे अपना टेक्स्ट टाइप करें या पेस्ट करें।"}
+              Type or paste your text below.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6 pt-4">
             <div className="space-y-2">
               <Textarea
-                placeholder={language === "Kannada" ? "ಇಲ್ಲಿ ಬರೆಯಿರಿ..." : "यहाँ लिखें..."}
+                placeholder="Write here..."
                 className="min-h-[150px] text-lg font-serif bg-spiritual-bg/30 border-spiritual-olive/10 focus:border-spiritual-olive/30 focus:ring-spiritual-olive/20 rounded-2xl resize-none transition-all"
                 value={text}
                 onChange={(e) => setText(e.target.value)}
@@ -247,7 +247,7 @@ export default function App() {
                   ) : (
                     <Play className="mr-2 h-4 w-4" />
                   )}
-                  {language === "Kannada" ? "ಧ್ವನಿ ರಚಿಸಿ" : "आवाज उत्पन्न करें"}
+                  Generate Voice
                 </Button>
               </div>
             </div>
@@ -294,7 +294,7 @@ export default function App() {
             <Sparkles size={20} />
           </div>
           <p className="mt-4 text-xs font-sans uppercase tracking-[0.2em] text-spiritual-ink/40">
-            Multi-Language Support • Vani AI
+            Multi-Language Support • Vani TTS
           </p>
         </motion.div>
       </motion.div>
