@@ -3,25 +3,92 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Sparkles, Play, Volume2, Loader2, Music, Languages, Sun, Globe, Gauge } from "lucide-react";
+import { Sparkles, Play, Volume2, Loader2, Music, Languages, Sun, Globe, Gauge, Upload, FileText, CheckCircle } from "lucide-react";
+import * as pdfjs from 'pdfjs-dist';
+
+// Set worker via CDN
+pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { generateSpeech, VoiceName, Language } from "@/src/lib/gemini";
+import { generateSpeech, VoiceName, Language, extractTextWithAI } from "@/src/lib/gemini";
 
 export default function App() {
   const [text, setText] = useState("");
   const [voice, setVoice] = useState<VoiceName>("Kore");
   const [language, setLanguage] = useState<Language>("Kannada");
   const [speechRate, setSpeechRate] = useState(0.9);
+  const [useAiOcr, setUseAiOcr] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [isPdfLoading, setIsPdfLoading] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handlePdfUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || file.type !== "application/pdf") return;
+
+    setIsPdfLoading(true);
+    try {
+      if (useAiOcr) {
+        // AI OCR Mode using Gemini
+        const reader = new FileReader();
+        reader.onload = async () => {
+          const base64 = (reader.result as string).split(',')[1];
+          try {
+            const extractedText = await extractTextWithAI(base64, file.type, language);
+            setText(prev => (prev ? prev + "\n" + extractedText : extractedText));
+          } catch (err) {
+            console.error("AI OCR Failed:", err);
+            alert("AI extraction failed. Please try Standard mode or a different file.");
+          } finally {
+            setIsPdfLoading(false);
+            if (fileInputRef.current) fileInputRef.current.value = "";
+          }
+        };
+        reader.readAsDataURL(file);
+        return;
+      }
+
+      // Standard Mode
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjs.getDocument({ 
+        data: arrayBuffer,
+        cMapUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/cmaps/`,
+        cMapPacked: true,
+      }).promise;
+      
+      let fullText = "";
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items
+          .filter((item: any) => 'str' in item)
+          .map((item: any) => item.str)
+          .join(" ");
+        fullText += pageText + "\n";
+      }
+      
+      // Clean up text (remove extra spaces, line breaks if needed)
+      const cleanedText = fullText.replace(/\s+/g, ' ').trim();
+      setText(prev => (prev ? prev + "\n" + cleanedText : cleanedText));
+    } catch (error) {
+      console.error("Error parsing PDF:", error);
+      alert("Failed to read the PDF. Please try a different file.");
+    } finally {
+      setIsPdfLoading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
 
   const handleGenerate = async () => {
     if (!text.trim()) return;
@@ -117,13 +184,70 @@ export default function App() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6 pt-4">
-            <div className="space-y-2">
-              <Textarea
-                placeholder="Write here..."
-                className="min-h-[150px] text-lg font-serif bg-spiritual-bg/30 border-spiritual-olive/10 focus:border-spiritual-olive/30 focus:ring-spiritual-olive/20 rounded-2xl resize-none transition-all"
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-              />
+            <div className="space-y-4">
+              <div className="flex items-center justify-between px-1">
+                <Label className="text-sm font-medium text-spiritual-ink/70">Text Input</Label>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2 mr-2 border-r border-spiritual-olive/10 pr-4">
+                    <Label htmlFor="ai-ocr" className="text-[10px] font-sans uppercase tracking-widest text-spiritual-ink/40 cursor-pointer">
+                      AI OCR
+                    </Label>
+                    <div 
+                      className={`w-8 h-4 rounded-full relative cursor-pointer transition-colors ${useAiOcr ? 'bg-spiritual-olive' : 'bg-spiritual-olive/20'}`}
+                      onClick={() => setUseAiOcr(!useAiOcr)}
+                    >
+                      <motion.div 
+                        animate={{ x: useAiOcr ? 16 : 2 }}
+                        className="w-3 h-3 bg-white rounded-full absolute top-0.5"
+                      />
+                    </div>
+                  </div>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handlePdfUpload}
+                    accept=".pdf"
+                    className="hidden"
+                  />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isPdfLoading}
+                    className="h-8 text-spiritual-olive hover:text-spiritual-olive/80 hover:bg-spiritual-olive/5 gap-2 rounded-full px-3"
+                  >
+                    {isPdfLoading ? (
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                    ) : (
+                      <Upload className="h-3 w-3" />
+                    )}
+                    {useAiOcr ? "AI Upload" : "Fast Upload"}
+                  </Button>
+                  {text && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setText("")}
+                      className="h-8 text-red-500 hover:text-red-600 hover:bg-red-50 gap-2 rounded-full px-3"
+                    >
+                      Clear
+                    </Button>
+                  )}
+                </div>
+              </div>
+              <div className="relative group">
+                <Textarea
+                  placeholder="Write here or upload a PDF..."
+                  className="min-h-[150px] text-lg font-serif bg-spiritual-bg/30 border-spiritual-olive/10 focus:border-spiritual-olive/30 focus:ring-spiritual-olive/20 rounded-2xl resize-none transition-all pr-12 pt-4"
+                  value={text}
+                  onChange={(e) => setText(e.target.value)}
+                />
+                <div className="absolute right-4 bottom-4 opacity-0 group-focus-within:opacity-100 transition-opacity">
+                  <span className="text-[10px] text-spiritual-ink/30 font-sans uppercase tracking-widest">
+                    {text.length} characters
+                  </span>
+                </div>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

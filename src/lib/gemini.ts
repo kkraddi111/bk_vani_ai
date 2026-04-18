@@ -82,6 +82,34 @@ function pcmToWav(base64Pcm: string, sampleRate: number): string {
   return URL.createObjectURL(blob);
 }
 
+export async function extractTextWithAI(fileBase64: string, mimeType: string, language: Language) {
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: [
+        {
+          parts: [
+            {
+              text: `Extract the full text from this document. The language is ${language}. Ensure the output is in proper Unicode characters (Devanagari for Hindi, Kannada script for Kannada). Even if the document uses legacy fonts, convert it to standard Unicode text. Do not include any commentary, only the extracted text.`
+            },
+            {
+              inlineData: {
+                data: fileBase64,
+                mimeType: mimeType,
+              }
+            }
+          ]
+        }
+      ],
+    });
+
+    return response.text || "";
+  } catch (error) {
+    console.error("AI OCR Error:", error);
+    throw error;
+  }
+}
+
 function writeString(view: DataView, offset: number, string: string) {
   for (let i = 0; i < string.length; i++) {
     view.setUint8(offset + i, string.charCodeAt(i));

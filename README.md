@@ -17,7 +17,10 @@ Vani TTS is a peaceful and spiritual text-to-speech application that transforms 
   - **Despina** (Mystical & Deep)
   - **Achernar** (Radiant & Clear)
   - **Sulafat** (Gentle & Warm)
-- **Speech Pace Control**: Adjust the generation speed from 0.5x to 2.0x to get the perfect delivery.
+- **Speech Pace Control**: Adjust the generation speed from 0.5x to 2.0x (defaults to 0.9x for a calmer delivery).
+- **PDF Upload & AI OCR**: Transform entire documents into speech.
+  - **AI Upload Mode**: Uses Gemini AI to "see" and extract text with high precision, especially for complex scripts like Hindi and Kannada that often use non-standard encoding in PDFs.
+  - **Fast Upload Mode**: Standard library-based extraction for simple documents.
 - **Spiritual Aesthetic**: A clean, calming UI designed for a peaceful user experience.
 - **Direct Download**: Generated audio can be played back immediately or downloaded (via browser controls).
 
